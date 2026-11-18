@@ -66,7 +66,7 @@ def extract(project: str, start: str = "2019-12-31", end_exclusive: str = "2025-
         ee.Authenticate()
     ee.Initialize(project=project)
     point = ee.Geometry.Point([lon, lat])
-    cache = Path(output_root) / "data" / "cache_gee"
+    cache = Path(output_root) / "data" / "private" / "cache_gee"
     cache.mkdir(parents=True, exist_ok=True)
     frames = {}
     for label, dataset, scale_m in [
@@ -75,7 +75,8 @@ def extract(project: str, start: str = "2019-12-31", end_exclusive: str = "2025-
     ]:
         pieces = []
         for s, e in _chunks(start, end_exclusive, months=3):
-            path = cache / f"{label}_{s}_{e}.csv"
+            coord_key = f"{lat:+.5f}_{lon:+.5f}".replace("+","p").replace("-","m")
+            path = cache / f"{label}_{coord_key}_{s}_{e}.csv"
             if path.exists():
                 df = pd.read_csv(path, parse_dates=["timestamp_utc"])
                 print(f"CACHE {label}: {s} through {e}")
@@ -119,12 +120,12 @@ def extract(project: str, start: str = "2019-12-31", end_exclusive: str = "2025-
             daily = daily.drop(columns="rate_sum")
         daily["date"] = daily["date_utc"] + pd.to_timedelta(date_shift_days, unit="D")
         frames[label] = daily
-        daily.to_csv(Path(output_root) / "data" / f"{label}_daily_utc_and_station_date.csv", index=False)
+        daily.to_csv(Path(output_root) / "data" / "private" / f"{label}_daily_utc_and_station_date.csv", index=False)
     combined = frames["chirps"][["date", "chirps3_rnl_mm", "chirps_n"]].merge(
         frames["imerg"][["date", "imerg_v07_mm", "imerg_n", "n_images"]], on="date", how="outer", validate="one_to_one")
     combined = combined.sort_values("date")
     combined = combined[(combined["date"] >= pd.Timestamp("2020-01-01")) & (combined["date"] < pd.Timestamp("2025-01-01"))]
-    target = Path(output_root) / "data" / "satellite_daily_station_dates.csv"
+    target = Path(output_root) / "data" / "private" / "satellite_daily_station_dates.csv"
     combined.to_csv(target, index=False)
     meta = {
         "created_at": datetime.now().isoformat(), "source": "GOOGLE_EARTH_ENGINE_REAL_DATA",
@@ -137,7 +138,7 @@ def extract(project: str, start: str = "2019-12-31", end_exclusive: str = "2025-
         "valid_chirps_days": int(combined["chirps3_rnl_mm"].notna().sum()),
         "valid_imerg_days": int(combined["imerg_v07_mm"].notna().sum())
     }
-    with open(Path(output_root) / "data" / "satellite_extraction_metadata.json", "w", encoding="utf-8") as f:
+    with open(Path(output_root) / "data" / "private" / "satellite_extraction_metadata.json", "w", encoding="utf-8") as f:
         json.dump(meta, f, indent=2)
     print("Saved", target)
     print(json.dumps(meta, indent=2))
@@ -151,5 +152,10 @@ if __name__ == "__main__":
     p.add_argument("--project", required=True, help="Earth Engine-enabled Google Cloud project ID")
     p.add_argument("--date-shift-days", type=int, default=1, choices=[-1, 0, 1])
     p.add_argument("--no-authenticate", action="store_true")
+    p.add_argument("--lat", type=float, default=-6.15559)
+    p.add_argument("--lon", type=float, default=106.84)
+    p.add_argument("--start", default="2019-12-31")
+    p.add_argument("--end-exclusive", default="2025-01-01")
     args = p.parse_args()
-    extract(project=args.project, date_shift_days=args.date_shift_days, authenticate=not args.no_authenticate)
+    extract(project=args.project, date_shift_days=args.date_shift_days, authenticate=not args.no_authenticate,
+            lat=args.lat, lon=args.lon, start=args.start, end_exclusive=args.end_exclusive)
