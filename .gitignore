@@ -1,0 +1,25 @@
+# Raw/processed station data, Earth Engine point extracts, private result tables
+/data/private/
+/data/cache_gee/
+/data/*.csv
+/data/*.json
+/outputs/
+*.xlsx
+*.xls
+*.parquet
+# Credential and local configuration files
+.env
+.env.*
+!.env.example
+credentials.json
+*.pem
+*.key
+# Local Python and notebook state
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+.ipynb_checkpoints/
+.DS_Store
+.vscode/
