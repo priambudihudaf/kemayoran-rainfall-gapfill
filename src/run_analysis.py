@@ -18,19 +18,29 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 ROOT = Path(__file__).resolve().parents[1]
-GAUGE_CSV = ROOT / "data" / "kemayoran_gauge_daily_2020_2026.csv"
-SATELLITE_CSV = ROOT / "data" / "satellite_daily_station_dates.csv"
+GAUGE_CSV = ROOT / "data" / "private" / "kemayoran_gauge_daily_2020_2026.csv"
+SATELLITE_CSV = ROOT / "data" / "private" / "satellite_daily_station_dates.csv"
 PREDICTION_COLS = ["Monthly climatology", "CHIRPS v3 RNL", "IMERG V07", "CHIRPS bias adjusted", "IMERG bias adjusted", "Satellite ensemble"]
 SEED = 20261118
 plt.rcParams.update({"figure.dpi": 120, "savefig.dpi": 160, "axes.spines.top": False, "axes.spines.right": False})
 
 
-def station_data():
-    d = pd.read_csv(GAUGE_CSV, parse_dates=["date"])
+def station_data(gauge_csv=GAUGE_CSV):
+    gauge_csv = Path(gauge_csv)
+    if not gauge_csv.exists():
+        raise FileNotFoundError(
+            f"Gauge CSV not found: {gauge_csv}. Upload private normalized gauge CSV to data/private/ "
+            "or generate an entirely synthetic example using scripts/make_demo_gauge.py. "
+            "Do not commit real station measurements to GitHub."
+        )
+    d = pd.read_csv(gauge_csv, parse_dates=["date"])
+    required = {"date", "gauge_mm"}
+    if not required.issubset(d.columns):
+        raise ValueError(f"Gauge CSV missing required columns: {required - set(d.columns)}")
     if d["date"].isna().any() or d["date"].duplicated().any():
         raise ValueError("Gauge file has missing/duplicate dates")
     d = d.sort_values("date").reset_index(drop=True)
-    d["gauge_mm"] = pd.to_numeric(d["gauge_mm"], errors="coerce")
+    d["gauge_mm"] = pd.to_numeric(d["gauge_mm"], errors="coerce").replace({8888: np.nan, 9999: np.nan})
     if ((d["gauge_mm"] < 0) | (d["gauge_mm"] > 1000)).any():
         raise ValueError("Gauge contains unexpected negative or >1000 mm rainfall; inspect QC")
     expected = pd.date_range(d["date"].min(), d["date"].max(), freq="D")
@@ -240,10 +250,12 @@ def make_figures(df, test, year_audit, test_summary, scenario_summary, out, demo
     write_plot(df, out, "05_extreme_recall_simulated_gaps.png")
 
 
-def run(mode="demo", repeats=100, satellite_file=SATELLITE_CSV):
+def run(mode="demo", repeats=100, satellite_file=SATELLITE_CSV, gauge_file=GAUGE_CSV):
     if mode not in ("demo", "real"):
         raise ValueError("mode must be demo or real")
-    gauge = station_data()
+    if int(repeats) < 1:
+        raise ValueError("--repeats must be at least 1")
+    gauge = station_data(gauge_file)
     demo = mode == "demo"
     if demo:
         sat = synthetic_satellite_for_smoke_test(gauge)
@@ -354,5 +366,6 @@ if __name__ == "__main__":
     p.add_argument("--mode",choices=["demo","real"],default="demo")
     p.add_argument("--repeats",type=int,default=100)
     p.add_argument("--satellite-csv",default=str(SATELLITE_CSV))
+    p.add_argument("--gauge-csv",default=str(GAUGE_CSV))
     args=p.parse_args()
-    run(mode=args.mode,repeats=args.repeats,satellite_file=args.satellite_csv)
+    run(mode=args.mode,repeats=args.repeats,satellite_file=args.satellite_csv,gauge_file=args.gauge_csv)
