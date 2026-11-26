@@ -25,30 +25,30 @@ isolates *post-flag handling* for controlled event-level sensitivity testing.
 
 From this project directory:
 
-\`\`\`bash
+```bash
 python -m pip install -r requirements.txt
 python -m unittest discover -s tests -v
 python run.py --mode demo --stations 4 --reps 3
-\`\`\`
+```
 
 **DEMO uses entirely synthetic data and is not a scientific result.**
-Outputs: \`outputs/SYNTHETIC_DEMO_NOT_RESULTS\`.
+Outputs: `outputs/SYNTHETIC_DEMO_NOT_RESULTS`.
 
 Real NOAA data (requires internet; hundreds of small downloads, cached locally):
 
-\`\`\`bash
+```bash
 python run.py --mode real --stations 12 --reps 30
-\`\`\`
+```
 
-Outputs: \`outputs/NOAA_PILOT/\`. All input source file URLs + SHA256 checksums
-are recorded in \`source_manifest.csv\`. Data are cached in \`data/raw/\` and
+Outputs: `outputs/NOAA_PILOT/`. All input source file URLs + SHA256 checksums
+are recorded in `source_manifest.csv`. Data are cached in `data/raw/` and
 are not committed.
 
 ## Reproducibility and validity
 
 - Data: NOAA USCRN **Daily01** (not raw weather station observations);
-  \`T_DAILY_MAX\` is field 6, temperature in °C; \`LST_DATE\` is the station's
-  local-standard-time day. Data missing sentinel \`-9999.0\` becomes NaN.
+  `T_DAILY_MAX` is field 6, temperature in °C; `LST_DATE` is the station's
+  local-standard-time day. Data missing sentinel `-9999.0` becomes NaN.
 - Timeline: train 2010–2020; validation 2021–2022 (reserved); test 2023–2025.
 - Heatwave: Tmax > station-wise P90 for calendar day (+/-7-day baseline
   window), for at least 3 consecutive May–September days.
@@ -71,15 +71,15 @@ are not committed.
 
 ## Directory
 
-- \`run.py\`: full CLI analysis from data download to figures
-- \`src/heatqc/noaa.py\`: NOAA download, parser, demo generator, cache + source URLs
-- \`src/heatqc/core.py\`: P90 thresholds, event runs, policies, metrics
-- \`src/heatqc/experiment.py\`: randomized controlled scenarios + station bootstrap
-- \`tests/\`: offline unit tests and smoke test
-- \`docs/PROTOCOL.md\`: comprehensive experiment decisions / caveats
-- \`docs/MANUSCRIPT_OUTLINE.md\`: EGUsphere skeleton without invented Results
-- \`docs/LITERATURE_2025_2026.md\`: current relevant reading list
-- \`.github/workflows/heatwave-qc.yml\` (repository root): CI unit tests and synthetic smoke test
+- `run.py`: full CLI analysis from data download to figures
+- `src/heatqc/noaa.py`: NOAA download, parser, demo generator, cache + source URLs
+- `src/heatqc/core.py`: P90 thresholds, event runs, policies, metrics
+- `src/heatqc/experiment.py`: randomized controlled scenarios + station bootstrap
+- `tests/`: offline unit tests and smoke test
+- `docs/PROTOCOL.md`: comprehensive experiment decisions / caveats
+- `docs/MANUSCRIPT_OUTLINE.md`: EGUsphere skeleton without invented Results
+- `docs/LITERATURE_2025_2026.md`: current relevant reading list
+- `.github/workflows/heatwave-qc.yml` (repository root): CI unit tests and synthetic smoke test
 
 ## Official data documentation
 - [NOAA Daily01 directory](https://www.ncei.noaa.gov/pub/data/uscrn/products/daily01/)

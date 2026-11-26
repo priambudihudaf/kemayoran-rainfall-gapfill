@@ -85,7 +85,7 @@ def parse_daily(text: str, station_slug: str, source_url: str) -> pd.DataFrame:
     out.loc[out.tmax_c <= -9990, "tmax_c"] = np.nan
     if out.date.isna().any() or out.date.duplicated().any():
         raise ValueError(f"Invalid/duplicate NOAA dates in {source_url}")
-    if out.tmax_c.dropna().between(-80,65).all() is False:
+    if not out.tmax_c.dropna().between(-80,65).all():
         raise ValueError(f"Unusual Tmax values in {source_url}; inspect rather than silently clip")
     return out
 

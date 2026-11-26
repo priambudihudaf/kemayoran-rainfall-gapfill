@@ -120,3 +120,8 @@ No independent station QA or actual authenticated GEE request has been completed
 - 🔒 The observation data and any station-level predictions are intentionally not public in this repository.
 
 The code is **not** a peer-reviewed result or an accepted preprint. Avoid publishing numerical conclusions based on DEMO mode.
+
+
+## Separate project — Heatwave QC Policy Benchmark
+
+The [independent heatwave QC research project](projects/heatwave-qc-policy-benchmark/) explores how **identical simulated QC flags** lead to different event-level outcomes under preserve/remove/cap analysis policies. It uses public NOAA USCRN (or clearly labeled synthetic demo data), not BMKG observations. Its code, protocol, tests and manuscript outline are self-contained inside that directory.
