@@ -36,7 +36,9 @@ def main():
         inventory=pd.DataFrame()
     else:
         cache=HERE/"data"/"raw"
-        names=select_stations(cache,args.stations,args.start_year,args.end_year)
+        # Oversample candidate stations so completeness exclusions do not
+        # silently reduce the final target sample unnecessarily.
+        names=select_stations(cache,args.stations+max(3,args.stations//2),args.start_year,args.end_year)
         obs,inventory=load_real(names,args.start_year,args.end_year,cache)
         inventory.to_csv(out/"source_manifest.csv",index=False)
     obs=obs[(obs.date.dt.year>=2010)&(obs.date.dt.year<=2025)].copy()
@@ -63,7 +65,8 @@ def main():
             continue
         thresholds[station]=fit_p90(train)
         caps[station]=float(np.nanpercentile(train.tmax_c,99.5))
-        keep.append(station)
+        if len(keep)<args.stations:
+            keep.append(station)
     pd.DataFrame(report).to_csv(out/"coverage_audit.csv",index=False)
     if len(keep)<2:
         raise ValueError(f"Only {len(keep)} stations pass >=95% seasonal completeness; adjust candidates, never lower threshold silently")

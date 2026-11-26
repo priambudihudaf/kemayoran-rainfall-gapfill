@@ -34,7 +34,7 @@ python run.py --mode demo --stations 4 --reps 3
 **DEMO uses entirely synthetic data and is not a scientific result.**
 Outputs: `outputs/SYNTHETIC_DEMO_NOT_RESULTS`.
 
-Real NOAA data (requires internet; hundreds of small downloads, cached locally):
+Real NOAA data (requires internet; hundreds of small downloads, cached locally; the program oversamples candidate stations and retains up to the requested number after completeness checks):
 
 ```bash
 python run.py --mode real --stations 12 --reps 30
@@ -43,6 +43,10 @@ python run.py --mode real --stations 12 --reps 30
 Outputs: `outputs/NOAA_PILOT/`. All input source file URLs + SHA256 checksums
 are recorded in `source_manifest.csv`. Data are cached in `data/raw/` and
 are not committed.
+
+## Open directly in Google Colab
+
+[Run the dedicated notebook](https://colab.research.google.com/github/priambudihudaf/kemayoran-rainfall-gapfill/blob/main/projects/heatwave-qc-policy-benchmark/notebooks/Run_Heatwave_QC_from_GitHub.ipynb) — setup, tests, demo, NOAA real-data pilot and zipped results. No credentials or BMKG files needed.
 
 ## Reproducibility and validity
 
