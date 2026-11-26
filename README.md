@@ -122,6 +122,6 @@ No independent station QA or actual authenticated GEE request has been completed
 The code is **not** a peer-reviewed result or an accepted preprint. Avoid publishing numerical conclusions based on DEMO mode.
 
 
-## Separate project — Heatwave QC Policy Benchmark
+## Separate research: Heatwave QC Policy Benchmark (moved)
 
-The [independent heatwave QC research project](projects/heatwave-qc-policy-benchmark/) explores how **identical simulated QC flags** lead to different event-level outcomes under preserve/remove/cap analysis policies. It uses public NOAA USCRN (or clearly labeled synthetic demo data), not BMKG observations. Its code, protocol, tests and manuscript outline are self-contained inside that directory.
+The independent [Heatwave QC Policy Benchmark](https://github.com/priambudihudaf/projects-heatwave-qc-policy-benchmark) now lives in its own repository. Its code, notebook, workflows, tests, manuscript outline, and reproducibility documentation were moved on 26 November 2026. No BMKG station observations are included. Historic GitHub Actions results remain available in [the original successful 12-station run](https://github.com/priambudihudaf/kemayoran-rainfall-gapfill/actions/runs/45747326581).
